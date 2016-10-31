@@ -41,7 +41,7 @@ def load_cifar_batch(folder_name, batch_fn):
     data = pickle.load(fo)
     fo.close()
 
-    data = data["data"]
+    data = np.array(data["data"], dtype="uint8")
     num_samples = data.shape[0]
     return data.reshape((num_samples, 3, 32, 32)).transpose((0, 2, 3, 1))
 
@@ -88,9 +88,11 @@ def save_cifar10(db):
         file object for HDF5 dataset.
     """
     folder_name = "cifar-10-batches-py"
+
+    data = load_cifar_batch(folder_name, "test_batch")
     cifar10_ds = db.create_dataset("CIFAR10", (10000, 32, 32, 3),
                                    maxshape=(None, 32, 32, 3),
-                                   dtype="uint8")
+                                   dtype="uint8", data=data)
 
     for i in xrange(1, 6):
         fn = "data_batch_"+str(i)
@@ -113,7 +115,7 @@ def save_cifar100(db):
     folder_name = "cifar-100-python"
     data = load_cifar_batch(folder_name, "train")
 
-    cifar100_ds = db.create_dataset("CIFAR-100", data.shape,
+    cifar100_ds = db.create_dataset("CIFAR100", data.shape,
                                     maxshape=(None, 32, 32, 3),
                                     dtype="uint8",
                                     data=data)
@@ -136,7 +138,7 @@ def save_stl10(db):
         file object for HDF5 dataset.
     """
     folder_name = "stl10_binary"
-    stl10_ds = db.create_dataset("STL-10", (10, 32, 32, 3),
+    stl10_ds = db.create_dataset("STL10", (10, 32, 32, 3),
                                  maxshape=(None, 32, 32, 3),
                                  dtype="uint8")
 
@@ -157,7 +159,7 @@ def save_stl10(db):
 
 
 def save_dataset(db_name):
-    """Save CIFAR-10, CIFAR-100, STL-10 to HDF-10 format.
+    """Save CIFAR-10, CIFAR-100, STL-10 to HDF-5 format.
 
     Parameters
     ----------
@@ -180,3 +182,20 @@ def save_dataset(db_name):
     save_stl10(db_file)
 
     db_file.close()
+
+
+def load_dataset(db_name):
+    """Load CIFAR-10, CIFAR-100, STL-10 to HDF-5 format.
+
+    Parameters
+    ----------
+    db_name : string
+        the name of the database.
+    """
+    db_file = join(transyou.TRANSYOU_RES, db_name)
+    if not os.path.isfile(db_file):
+        raise ValueError("The dataset %s exists." % (db_file))
+
+    db_file = h5py.File(db_file, "r")
+
+    return db_file
