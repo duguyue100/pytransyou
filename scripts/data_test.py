@@ -15,12 +15,12 @@ from transyou import transfun
 #  util.save_dataset("image_db.h5")
 
 data = util.load_dataset("image_db.h5")
-image = imread(os.path.join(transyou.TRANSYOU_RES, "cmydoll.jpeg"))
+image = imread(os.path.join(transyou.TRANSYOU_RES, "favicon.jpg"))
 print image.shape
 
 res_image = transfun.trans_you(image, data, target_size=(16, 16))
 
-imsave(os.path.join(transyou.TRANSYOU_RES, "cmydoll-out.png"), res_image)
+imsave(os.path.join(transyou.TRANSYOU_RES, "favicon-out.png"), res_image)
 print res_image.shape
 
 plt.figure()
